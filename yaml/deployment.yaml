@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oap
+  namespace: test-apm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oap
+  template:
+    metadata:
+      labels:
+        app: oap
+        release: skywalking
+    spec:
+      nodeSelector:
+        test-apms: ""
+      serviceAccountName: skywalking-oap-sa
+      containers:
+        - name: oap
+          image: reg.jevic.cn/basic/skywalking-oap-server:7.0.0-es7
+          command: ["sh","-c","cat /tmp/alarm-settings.yml > /skywalking/config/alarm-settings.yml && /bin/bash docker-entrypoint.sh"]
+          imagePullPolicy: Always
+          livenessProbe:
+            tcpSocket:
+              port: 12800
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            tcpSocket:
+              port: 12800
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          ports:
+            - containerPort: 11800
+              name: grpc
+            - containerPort: 12800
+              name: rest
+          resources:
+            requests:
+              memory: 4Gi
+            limits:
+              memory: 4Gi
+          env:
+            - name: JAVA_OPTS
+              value: "-Xmx2g -Xms2g"
+            - name: SW_CLUSTER
+              value: standalone
+            - name: SKYWALKING_COLLECTOR_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+            - name: SW_STORAGE
+              value: "elasticsearch7"
+            - name: SW_CLUSTER_K8S_NAMESPACE
+              value: "test-apm"
+            - name: SW_STORAGE_ES_CLUSTER_NODES
+              value: "192.168.1.13:9200"
+            - name: SW_NAMESPACE
+              value: "test-apm"
+            - name: SW_STORAGE_ES_INDEX_SHARDS_NUMBER
+              value: "2"
+            - name: SW_STORAGE_ES_INDEX_REPLICAS_NUMBER
+              value: "0"
+            - name: SW_STORAGE_ES_BULK_ACTIONS
+              value: "2000"
+            - name: SW_STORAGE_ES_BULK_SIZE
+              value: "20"
+            - name: SW_TRACE_SAMPLE_RATE
+              value: "1000"
+            - name: SW_CORE_HOUR_METRIC_DATA_TTL
+              value: "24"
+            - name: SW_CORE_DAY_METRIC_DATA_TTL
+              value: "3"
+            - name: SW_CORE_MONTH_METRIC_DATA_TTL
+              value: "2"
+          volumeMounts:
+            - name: yml
+              mountPath: /tmp
+              readOnly: false
+      volumes:
+        - name: yml
+          configMap:
+            name: apm-alarm-configmap
+            defaultMode: 0755
+            items:
+            - key: alarm-settings.yml
+              path: alarm-settings.yml

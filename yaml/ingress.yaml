@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: apm-ui
+  namespace: test-apm
+spec:
+  rules:
+  - host: test-apm.jevic.cn
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: apm-ui
+          servicePort: 8080

@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apm-ui-deployment
+  namespace: test-apm
+  labels:
+    app: apm-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apm-ui
+  template:
+    metadata:
+      labels:
+        app: apm-ui
+    spec:
+      containers:
+      - name: apm-ui
+        image: reg.jevic.cn/basic/skywalking-ui:7.0.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: page
+        resources:
+          requests:
+            memory: 1Gi
+          limits:
+            memory: 2Gi
+        env:
+        - name: SW_OAP_ADDRESS
+          value: oap:12800
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apm-ui
+  labels:
+    service: apm-ui
+spec:
+  ports:
+  - port: 8080
+    name: page
+  selector:
+    app: apm-ui

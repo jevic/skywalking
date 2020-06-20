@@ -1,0 +1,14 @@
+apiVersion: settings.k8s.io/v1alpha1
+kind: PodPreset
+metadata:
+  name: skywalking-agent
+  namespace: test-app
+spec:
+  selector:
+    matchLabels:
+  volumeMounts:
+    - mountPath: /skywalking/agent
+      name: agent
+  volumes:
+    - name: agent
+      emptyDir: {}

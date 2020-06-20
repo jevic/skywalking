@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: app-agent-demo
+  namespace: test-app
+spec:
+  rules:
+  - host: demo.jevic.cn
+    http:
+      paths:
+      - path: /demo
+        backend:
+          serviceName: app-agent-demo
+          servicePort: 8080

@@ -1,0 +1,11 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: env-config-map
+  namespace: test-app
+data:
+  init.sh: |-
+    #!/bin/sh
+    echo "start jar...."
+    JAVA_OTHER_OPTS="-javaagent:/skywalking/agent/skywalking-agent.jar -Dskywalking.collector.backend_service=192.168.13.100:11800 -Dskywalking.agent.service_name=$APP -Dskywalking.agent.sample_n_per_3_secs=1000 -Dskywalking.logging.level=WARN -Dskywalking.trace.ignore_path=/actuator/**,/actuator, -Dskywalking.profile.active=true"
+    java $JAVA_OTHER_OPTS -jar *.jar

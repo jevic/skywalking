@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-agent-demo
+  namespace: test-app
+  labels:
+    app: app-agent-demo
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    #nodePort: 30281
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: app-agent-demo
+
